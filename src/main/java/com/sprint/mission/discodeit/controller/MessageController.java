@@ -53,7 +53,7 @@ public class MessageController {
   public ResponseEntity<SuccessResponse<MessageResponseDto>> updateMessage(
       @Parameter(name = "messageId", description = "수정할 Message ID") @PathVariable UUID messageId,
       @RequestBody MessagePatchDto messagePatchDto) {
-    return ResponseEntity.status(HttpStatus.CREATED)
+    return ResponseEntity.status(HttpStatus.OK)
         .body(SuccessResponse.success(messageService.updateById(messageId, messagePatchDto)));
   }
 

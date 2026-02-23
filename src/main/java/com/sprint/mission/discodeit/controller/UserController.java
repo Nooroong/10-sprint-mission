@@ -59,9 +59,9 @@ public class UserController {
   @Operation(summary = "User 정보 수정", operationId = "update")
   public ResponseEntity<SuccessResponse<UserDto>> updateUser(
       @Parameter(name = "userId", description = "수정할 User ID") @PathVariable UUID userId,
-      @RequestPart UserPatchDto userPatchDto,
+      @RequestPart("userUpdateRequest") UserPatchDto userPatchDto,
       @Parameter(name = "profile", description = "수정할 User 프로필 이미지") @RequestPart MultipartFile profile) {
-    return ResponseEntity.status(HttpStatus.CREATED)
+    return ResponseEntity.status(HttpStatus.OK)
         .body(SuccessResponse.success(userService.updateUser(userId, userPatchDto, profile)));
   }
 
