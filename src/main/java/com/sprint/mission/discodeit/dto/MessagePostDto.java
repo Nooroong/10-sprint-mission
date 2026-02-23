@@ -5,7 +5,7 @@ import java.util.UUID;
 public record MessagePostDto(
     UUID authorId,
     UUID channelId,
-    String newContent
+    String content
 ) {
 
 }

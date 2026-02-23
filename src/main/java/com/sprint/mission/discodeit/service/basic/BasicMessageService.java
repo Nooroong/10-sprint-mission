@@ -126,7 +126,7 @@ public class BasicMessageService implements MessageService {
             () -> new BusinessLogicException(ExceptionCode.MESSAGE_NOT_FOUND, messageId)
         );
 
-    message.updateContent(messagePatchDto.text());
+    message.updateContent(messagePatchDto.newContent());
     messageRepository.save(message);
 
     return messageMapper.toResponse(message);

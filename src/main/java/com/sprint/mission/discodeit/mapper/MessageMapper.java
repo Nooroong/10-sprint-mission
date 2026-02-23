@@ -18,7 +18,7 @@ public class MessageMapper {
     return new Message(
         messagePostDto.authorId(),
         messagePostDto.channelId(),
-        messagePostDto.newContent(),
+        messagePostDto.content(),
         null
     );
   }

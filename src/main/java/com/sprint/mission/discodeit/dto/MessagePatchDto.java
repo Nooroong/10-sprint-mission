@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.dto;
 
 public record MessagePatchDto(
-	String text
+    String newContent
 ) {
+
 }
