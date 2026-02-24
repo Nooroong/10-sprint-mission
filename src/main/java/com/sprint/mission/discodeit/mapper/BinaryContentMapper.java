@@ -1,34 +1,33 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.dto.BinaryContentPostDto;
+import com.sprint.mission.discodeit.dto.BinaryContentResponseDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import java.util.UUID;
+import java.util.Base64;
 import org.springframework.stereotype.Component;
 
 @Component
 public class BinaryContentMapper {
 
-  // todo: binarycontentmapper 수정
-  public BinaryContent fromDto(UUID userId, UUID messageId, BinaryContentDto binaryContentDtO) {
+  public BinaryContent fromDto(BinaryContentPostDto binaryContentPostDto) {
     return new BinaryContent(
-        userId,
-        messageId,
-        binaryContentDtO.fileName(),
+        binaryContentPostDto.userId(),
+        binaryContentPostDto.messageId(),
+        binaryContentPostDto.fileName(),
         0,
         "",
-        binaryContentDtO.data()
+        binaryContentPostDto.data()
     );
   }
 
-  public BinaryContent fromDto(BinaryContentPostDto binaryContentPostDTO) {
-    return new BinaryContent(
-        binaryContentPostDTO.userId(),
-        binaryContentPostDTO.messageId(),
-        binaryContentPostDTO.fileName(),
-        0,
-        "",
-        binaryContentPostDTO.data() // todo
+  public BinaryContentResponseDto toResponseDto(BinaryContent binaryContent) {
+    return new BinaryContentResponseDto(
+        binaryContent.getId(),
+        binaryContent.getCreatedAt(),
+        binaryContent.getFileName(),
+        binaryContent.getSize(),
+        binaryContent.getContentType(),
+        Base64.getEncoder().encodeToString(binaryContent.getBytes())
     );
   }
 

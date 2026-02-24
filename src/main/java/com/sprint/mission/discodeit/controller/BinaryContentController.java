@@ -1,7 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.BinaryContentResponseDto;
-import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,7 +27,7 @@ public class BinaryContentController {
 
   @RequestMapping(method = RequestMethod.GET)
   @Operation(summary = "여러 첨부 파일 조회", operationId = "findAllByIdIn")
-  public ResponseEntity<List<BinaryContent>> getBinaryContentByIds(
+  public ResponseEntity<List<BinaryContentResponseDto>> getBinaryContentByIds(
       @Parameter(name = "binaryContentIds", description = "조회할 첨부 파일 ID 목록") @RequestParam("binaryContentIds") List<UUID> binaryContentIds)
       throws
       IOException {

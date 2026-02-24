@@ -9,7 +9,7 @@ public record BinaryContentResponseDto(
     String fileName,
     int size,
     String contentType,
-    String bytes
+    String bytes // base64
 ) {
 
 }

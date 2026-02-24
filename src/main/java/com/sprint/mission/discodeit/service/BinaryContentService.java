@@ -9,14 +9,12 @@ import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -40,22 +38,13 @@ public class BinaryContentService {
         Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static", "images",
             binaryContent.getFileName()).toString());
 
-    byte[] fileBytes = Files.readAllBytes(file.toPath());
-    String base64 = Base64.getEncoder().encodeToString(fileBytes);
-
-    return new BinaryContentResponseDto(
-        binaryContent.getId(),
-        binaryContent.getCreatedAt(),
-        binaryContent.getFileName(),
-        binaryContent.getSize(),
-        "image/" + StringUtils.getFilenameExtension(binaryContent.getFileName()),
-        base64
-    );
+    return binaryContentMapper.toResponseDto(binaryContent);
   }
 
-  // todo: return에 dto를 사용
-  public List<BinaryContent> findAllByIdIn(List<UUID> idList) {
-    return binaryContentRepository.findByIdIn(idList);
+  public List<BinaryContentResponseDto> findAllByIdIn(List<UUID> idList) {
+    return binaryContentRepository.findByIdIn(idList).stream()
+        .map(binaryContentMapper::toResponseDto)
+        .collect(Collectors.toList());
   }
 
   public void delete(UUID id) {
