@@ -6,7 +6,7 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.BusinessLogicException;
 import com.sprint.mission.discodeit.exception.ExceptionCode;
-import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.mapper.AuthMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class AuthService {
 
   private final UserRepository userRepository;
   private final UserStatusRepository userStatusRepository;
-  private final UserMapper userMapper;
+  private final AuthMapper authMapper;
 
   public LoginResponseDto login(LoginDto loginDto) {
     User user = userRepository.findByUserName(loginDto.username())
@@ -35,17 +35,8 @@ public class AuthService {
         () -> userStatusRepository.save(new UserStatus(user.getId()))
     );
 
-    // todo: mapper를 만들까..
     if (user.getPassword().equals(loginDto.password())) {
-      return new LoginResponseDto(
-          user.getId(),
-          user.getCreatedAt(),
-          user.getUpdatedAt(),
-          user.getUsername(),
-          user.getEmail(),
-          user.getPassword(),
-          user.getProfileId()
-      );
+      return authMapper.userToResponseDto(user);
     }
 
     throw new BusinessLogicException(ExceptionCode.WRONG_PASSWORD);
