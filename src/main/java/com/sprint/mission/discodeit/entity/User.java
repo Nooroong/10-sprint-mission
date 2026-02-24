@@ -13,9 +13,9 @@ public class User extends Base {
   private final List<UUID> channelIds; // 특정 유저의 채널 소속
   private final List<UUID> messageIds; // 특정 유저가 생성한 모든 메시지
 
-  // 유저 프로필 사진 만든다 -> binary newContent 추가 -> 사진 데이터 -> 바이트코드로 들고있기 -> 바이트배열 형태로 들어왔다고 가정하기
   private UUID profileId; // 프로필 이미지의 id
-  private String nickName;
+  @Deprecated
+  private String nickName; // 일단 지금은 안 쓰는듯
   private String username;
   private String email;
   private String phoneNumber;
@@ -42,7 +42,7 @@ public class User extends Base {
     updateUpdatedAt(Instant.now());
   }
 
-  public void updateUserName(String username) {
+  public void updateUsername(String username) {
     this.username = username;
     updateUpdatedAt(Instant.now());
   }

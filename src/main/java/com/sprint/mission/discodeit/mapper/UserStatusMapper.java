@@ -9,8 +9,12 @@ public class UserStatusMapper {
 
   public UserStatusResponseDto toResponseDto(UserStatus userStatus) {
     return new UserStatusResponseDto(
+        userStatus.getId(),
+        userStatus.getCreatedAt(),
+        userStatus.getUpdatedAt(),
         userStatus.getUserId(),
-        userStatus.getLastActiveAt()
+        userStatus.getLastActiveAt(),
+        userStatus.isOnline()
     );
   }
 }

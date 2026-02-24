@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.ReadStatusPatchDto;
 import com.sprint.mission.discodeit.dto.ReadStatusPostDto;
 import com.sprint.mission.discodeit.dto.ReadStatusResponseDto;
 import com.sprint.mission.discodeit.entity.ReadStatus;
@@ -64,13 +65,13 @@ public class ReadStatusService {
         .collect(Collectors.toList());
   }
 
-  public ReadStatusResponseDto update(UUID readStatusId) {
+  public ReadStatusResponseDto update(UUID readStatusId, ReadStatusPatchDto readStatusPatchDto) {
     ReadStatus readStatus = readStatusRepository.findById(readStatusId)
         .orElseThrow(
             () -> new BusinessLogicException(ExceptionCode.READ_STATUS_NOT_FOUND, readStatusId));
 
     // 시간 정보만 최신으로 갱신 후 저장
-    readStatus.updateLastReadTime();
+    readStatus.updateLastReadTime(readStatusPatchDto.newLastReadAt());
     return readStatusMapper.toResponseDto(readStatusRepository.save(readStatus));
   }
 

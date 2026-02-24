@@ -15,8 +15,8 @@ public class ChannelMapper {
   public Channel toChannel(PublicChannelPostDto publicChannelPostDto) {
     return new Channel(
         ChannelType.PUBLIC,
-        publicChannelPostDto.newName(),
-        publicChannelPostDto.newDescription()
+        publicChannelPostDto.name(),
+        publicChannelPostDto.description()
     );
   }
 
@@ -39,6 +39,8 @@ public class ChannelMapper {
   public ChannelResponseDto fromChannel(Channel channel, Instant lastMessageTime) {
     return new ChannelResponseDto(
         channel.getId(),
+        channel.getCreatedAt(),
+        channel.getUpdatedAt(),
         channel.getType(),
         channel.getName(),
         channel.getDescription(),

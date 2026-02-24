@@ -1,25 +1,25 @@
 package com.sprint.mission.discodeit.mapper;
 
-import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.UserPostDto;
+import com.sprint.mission.discodeit.dto.UserResponseDto;
 import com.sprint.mission.discodeit.entity.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
 
-  public User toUser(UserPostDto userPostDTO) {
+  public User toUser(UserPostDto userPostDto) {
     return new User(
-        userPostDTO.nickName(),
-        userPostDTO.userName(),
-        userPostDTO.email(),
-        userPostDTO.phoneNumber(),
-        userPostDTO.password()
+        userPostDto.nickName(),
+        userPostDto.username(),
+        userPostDto.email(),
+        userPostDto.phoneNumber(),
+        userPostDto.password()
     );
   }
 
-  public UserDto toUserResponseDto(User user, boolean online) {
-    return new UserDto(
+  public UserResponseDto toUserResponseDto(User user, boolean online) {
+    return new UserResponseDto(
         user.getId(),
         user.getCreatedAt(),
         user.getUpdatedAt(),

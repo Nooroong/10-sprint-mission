@@ -1,8 +1,8 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.UserPatchDto;
 import com.sprint.mission.discodeit.dto.UserPostDto;
+import com.sprint.mission.discodeit.dto.UserResponseDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
@@ -38,9 +38,9 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
 
   @Override
-  public UserDto create(UserPostDto userPostDto, MultipartFile profile) {
+  public UserResponseDto create(UserPostDto userPostDto, MultipartFile profile) {
     // username과 email이 다른 유저와 같으면 안 된다.
-    if (isUserNameDuplicated(userPostDto.userName()) ||
+    if (isUserNameDuplicated(userPostDto.username()) ||
         isEmailDuplicated(userPostDto.email())) {
       throw new BusinessLogicException(ExceptionCode.USER_INFO_DUPLICATED, userPostDto.email());
     }
@@ -82,9 +82,9 @@ public class BasicUserService implements UserService {
         getOnlineStatus(newUser.getId()));
   }
 
-  public boolean isUserNameDuplicated(String userName) {
+  public boolean isUserNameDuplicated(String username) {
     return userRepository.findAll().stream()
-        .anyMatch(user -> user.getUsername().equals(userName));
+        .anyMatch(user -> user.getUsername().equals(username));
   }
 
   public boolean isEmailDuplicated(String email) {
@@ -93,7 +93,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public UserDto findById(UUID userId) {
+  public UserResponseDto findById(UUID userId) {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND, userId));
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
@@ -104,10 +104,10 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public UserDto findByUserName(String userName) {
-    User user = userRepository.findByUserName(userName)
+  public UserResponseDto findByUsername(String username) {
+    User user = userRepository.findByUserName(username)
         .orElseThrow(
-            () -> new BusinessLogicException(ExceptionCode.USER_NAME_NOT_FOUND, userName)
+            () -> new BusinessLogicException(ExceptionCode.USER_NAME_NOT_FOUND, username)
         );
     UserStatus userStatus = userStatusRepository.findByUserId(user.getId())
         .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND, user.getId()));
@@ -116,7 +116,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public List<UserDto> findAll() {
+  public List<UserResponseDto> findAll() {
     // todo: UserStatus의 isLogined를 활용하여 온라인 상태 반환
     return userRepository.findAll().stream()
         .map(user -> userMapper.toUserResponseDto(user, getOnlineStatus(user.getId())))
@@ -124,17 +124,15 @@ public class BasicUserService implements UserService {
   }
 
   @Override
-  public UserDto updateUser(UUID userId, UserPatchDto userPatchDto, MultipartFile profile) {
+  public UserResponseDto updateUser(UUID userId, UserPatchDto userPatchDto, MultipartFile profile) {
     User updatedUser = userRepository.findById(userId)
         .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND, userId));
 
     // 유저 정보 업데이트
     Optional.ofNullable(userPatchDto.newUsername())
-        .ifPresent(updatedUser::updateNickName);
+        .ifPresent(updatedUser::updateUsername);
     Optional.ofNullable(userPatchDto.newEmail())
         .ifPresent(updatedUser::updateEmail);
-    Optional.ofNullable(userPatchDto.newPhoneNumber())
-        .ifPresent(updatedUser::updatePhoneNumber);
     Optional.ofNullable(userPatchDto.newPassword())
         .ifPresent(updatedUser::updatePassword);
 

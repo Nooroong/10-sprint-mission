@@ -1,10 +1,9 @@
 package com.sprint.mission.discodeit.dto;
 
-import java.util.UUID;
+import java.time.Instant;
 
 public record ReadStatusPatchDto(
-	UUID readStatusId,
-	UUID userId,
-	UUID channelId
+    Instant newLastReadAt
 ) {
+
 }

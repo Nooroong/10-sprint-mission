@@ -12,16 +12,18 @@ public class ReadStatusMapper {
   public ReadStatusResponseDto toResponseDto(ReadStatus readStatus) {
     return new ReadStatusResponseDto(
         readStatus.getId(),
+        readStatus.getCreatedAt(),
+        readStatus.getUpdatedAt(),
         readStatus.getUserId(),
         readStatus.getChannelId(),
         readStatus.getLastReadTime()
     );
   }
 
-  public ReadStatus fromDto(ReadStatusPostDto readStatusPostDTO) {
+  public ReadStatus fromDto(ReadStatusPostDto readStatusPostDto) {
     return new ReadStatus(
-        readStatusPostDTO.userId(),
-        readStatusPostDTO.channelId(),
+        readStatusPostDto.userId(),
+        readStatusPostDto.channelId(),
         Instant.now()
     );
   }

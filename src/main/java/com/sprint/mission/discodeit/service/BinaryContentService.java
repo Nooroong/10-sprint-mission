@@ -44,6 +44,10 @@ public class BinaryContentService {
     String base64 = Base64.getEncoder().encodeToString(fileBytes);
 
     return new BinaryContentResponseDto(
+        binaryContent.getId(),
+        binaryContent.getCreatedAt(),
+        binaryContent.getFileName(),
+        binaryContent.getSize(),
         "image/" + StringUtils.getFilenameExtension(binaryContent.getFileName()),
         base64
     );

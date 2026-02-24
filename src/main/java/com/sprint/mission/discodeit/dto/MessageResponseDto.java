@@ -6,11 +6,11 @@ import java.util.UUID;
 
 public record MessageResponseDto(
     UUID id,
-    Instant createAt,
+    Instant createdAt,
     Instant updatedAt,
     String content,
-    UUID authorId,
     UUID channelId,
+    UUID authorId,
     List<UUID> attachmentIds
 ) {
 
