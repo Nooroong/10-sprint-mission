@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.UserStatusPatchDto;
 import com.sprint.mission.discodeit.dto.UserStatusPostDto;
 import com.sprint.mission.discodeit.dto.UserStatusResponseDto;
 import com.sprint.mission.discodeit.entity.User;
@@ -54,23 +55,13 @@ public class UserStatusService {
         .collect(Collectors.toList());
   }
 
-  public UserStatusResponseDto updateByUserId(UUID userId) {
+  public UserStatusResponseDto updateByUserId(UUID userId, UserStatusPatchDto userStatusPatchDto) {
     UserStatus userStatus = userStatusRepository.findByUserId(userId)
         .orElseThrow(() ->
             new BusinessLogicException(ExceptionCode.USER_STATUS_WITH_USER_ID_NOT_FOUND, userId)
         );
 
-    userStatus.updateLastAccessedTime();
-    return userStatusMapper.toResponseDto(userStatusRepository.save(userStatus));
-  }
-
-  public UserStatusResponseDto updatedByUserId(UUID userId) {
-    UserStatus userStatus = userStatusRepository.findById(userId)
-        .orElseThrow(() ->
-            new BusinessLogicException(ExceptionCode.USER_NOT_FOUND, userId)
-        );
-
-    userStatus.updateLastAccessedTime();
+    userStatus.updateLastAccessedTime(userStatusPatchDto.newLastActiveAt());
     return userStatusMapper.toResponseDto(userStatusRepository.save(userStatus));
   }
 

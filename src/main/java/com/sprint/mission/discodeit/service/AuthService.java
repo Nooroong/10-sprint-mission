@@ -9,6 +9,7 @@ import com.sprint.mission.discodeit.exception.ExceptionCode;
 import com.sprint.mission.discodeit.mapper.AuthMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,7 @@ public class AuthService {
     // 해당 user의 userStatus가 존재한다면 lastAccessedTime을 업데이트, 없다면 새로 만들어 저장한다.
     userStatusRepository.findByUserId(user.getId()).ifPresentOrElse(
         userStatus -> {
-          userStatus.updateLastAccessedTime();
+          userStatus.updateLastAccessedTime(Instant.now());
           userStatusRepository.save(userStatus);
         },
         () -> userStatusRepository.save(new UserStatus(user.getId()))

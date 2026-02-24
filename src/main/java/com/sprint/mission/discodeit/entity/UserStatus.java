@@ -18,8 +18,8 @@ public class UserStatus extends Base {
     this.online = true;
   }
 
-  public void updateLastAccessedTime() {
-    this.lastActiveAt = Instant.now();
+  public void updateLastAccessedTime(Instant lastActiveAt) {
+    this.lastActiveAt = lastActiveAt;
   }
 
   public void updateOnline(boolean online) {

@@ -8,6 +8,7 @@ import com.sprint.mission.discodeit.service.ChannelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class ChannelController {
   @RequestMapping(value = "/public", method = RequestMethod.POST)
   @Operation(summary = "Public Channel 생성", operationId = "create_3")
   public ResponseEntity<ChannelResponseDto> createPublicChannel(
-      @RequestBody PublicChannelPostDto publicChannelPostDto) {
+      @Valid @RequestBody PublicChannelPostDto publicChannelPostDto) {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(channelService.createPublicChannel(publicChannelPostDto));
   }
@@ -48,7 +49,7 @@ public class ChannelController {
   @Operation(summary = "Channel 정보 수정", operationId = "update_3")
   public ResponseEntity<ChannelResponseDto> updatePublicChannel(
       @Parameter(name = "channelId", description = "수정할 Channel ID") @PathVariable UUID channelId,
-      @RequestBody ChannelPatchDto channelPatchDto) {
+      @Valid @RequestBody ChannelPatchDto channelPatchDto) {
     return ResponseEntity.status(HttpStatus.OK)
         .body(channelService.update(channelId, channelPatchDto));
   }

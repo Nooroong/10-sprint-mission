@@ -7,6 +7,7 @@ import com.sprint.mission.discodeit.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class MessageController {
   @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(summary = "Message 생성", operationId = "create_2")
   public ResponseEntity<MessageResponseDto> createMessage(
-      @RequestPart(name = "messageCreateRequest") MessagePostDto messagePostDto,
+      @Valid @RequestPart(name = "messageCreateRequest") MessagePostDto messagePostDto,
       @Parameter(description = "Message 첨부 파일들") @RequestPart(name = "attachments", required = false) List<MultipartFile> attachments) {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(messageService.create(messagePostDto, attachments));
@@ -51,7 +52,7 @@ public class MessageController {
   @Operation(summary = "Message 내용 수정", operationId = "update_2")
   public ResponseEntity<MessageResponseDto> updateMessage(
       @Parameter(name = "messageId", description = "수정할 Message ID") @PathVariable UUID messageId,
-      @RequestBody MessagePatchDto messagePatchDto) {
+      @Valid @RequestBody MessagePatchDto messagePatchDto) {
     return ResponseEntity.status(HttpStatus.OK)
         .body(messageService.updateById(messageId, messagePatchDto));
   }
