@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.exception;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-// todo: 예외 응답에 잘못된 필드의 값을 알려주기
 @Getter
 public enum ExceptionCode {
   // User with newEmail {newEmail} already exists

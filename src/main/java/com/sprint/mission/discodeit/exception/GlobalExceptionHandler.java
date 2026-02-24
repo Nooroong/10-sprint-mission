@@ -9,7 +9,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-// todo: swagger 관련 문제 해결 필요
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {

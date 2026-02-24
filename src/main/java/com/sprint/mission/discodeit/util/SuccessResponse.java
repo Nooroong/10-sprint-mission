@@ -4,12 +4,11 @@ import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-// todo: 모든 컨트롤러에 공통 response 적용
 @Getter
 @AllArgsConstructor
 public class SuccessResponse<T> {
 
-  private String message; // todo: default value를 가지고 선택적으로 지정할 수 있도록 하기
+  private String message;
   private T data;
   private Instant timestamp;
 
