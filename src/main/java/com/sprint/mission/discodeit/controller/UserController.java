@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.dto.UserPatchDto;
 import com.sprint.mission.discodeit.dto.UserPostDto;
 import com.sprint.mission.discodeit.dto.UserResponseDto;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.util.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,12 +55,12 @@ public class UserController {
 
   @RequestMapping(value = "/{userId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(summary = "User 정보 수정", operationId = "update")
-  public ResponseEntity<SuccessResponse<UserResponseDto>> updateUser(
+  public ResponseEntity<UserResponseDto> updateUser(
       @Parameter(name = "userId", description = "수정할 User ID") @PathVariable UUID userId,
       @RequestPart("userUpdateRequest") UserPatchDto userPatchDto,
       @Parameter(name = "profile", description = "수정할 User 프로필 이미지") @RequestPart(required = false) MultipartFile profile) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(SuccessResponse.success(userService.updateUser(userId, userPatchDto, profile)));
+        .body(userService.updateUser(userId, userPatchDto, profile));
   }
 
 

@@ -120,9 +120,9 @@ public class BasicChannelService implements ChannelService {
     }
 
     // 수정
-    Optional.ofNullable(channelPatchDto.name())
+    Optional.ofNullable(channelPatchDto.newName())
         .ifPresent(updateChannel::updateName);
-    Optional.ofNullable(channelPatchDto.description())
+    Optional.ofNullable(channelPatchDto.newDescription())
         .ifPresent(updateChannel::updateDescription);
 
     channelRepository.save(updateChannel);
