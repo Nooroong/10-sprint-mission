@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.MessagePatchDto;
 import com.sprint.mission.discodeit.dto.MessagePostDto;
 import com.sprint.mission.discodeit.dto.MessageResponseDto;
+import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
@@ -16,6 +17,9 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.util.AttachmentSaveUtil;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -71,15 +75,38 @@ public class BasicMessageService implements MessageService {
     // 첨부파일 영속화 + 레코드 추가 + 양방향 연결
     // todo: UserService처럼 파일 저장 로직 필요
 //    attachmentSaveUtil.saveAttachment(attachments);
-//    attachments.forEach(attachment -> {
-//          BinaryContent binaryContent = binaryContentRepository.save(new BinaryContent(
-//              null,
-//              newMessage.getId(),
-//              attachment.getOriginalFilename()
-//          ));
-//          newMessage.addAttachmentId(binaryContent.getId());
-//        }
-//    );
+    if (attachments != null) {
+      attachments.forEach(attachment -> {
+        UUID randomId = UUID.randomUUID();
+        File uploadDest = new File(
+            Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static",
+                "images",
+                randomId + "_" + attachment.getOriginalFilename()).toString());
+
+        if (!uploadDest.getParentFile().exists()) {
+          uploadDest.getParentFile().mkdirs();
+        }
+
+        try {
+          BinaryContent binaryContent = new BinaryContent(
+              null,
+              newMessage.getId(),
+              randomId + "_" + attachment.getOriginalFilename(),
+              (int) attachment.getSize(),
+              attachment.getContentType(),
+              attachment.getBytes()
+          );
+          binaryContentRepository.save(binaryContent);
+          attachment.transferTo(new File(uploadDest.toString()));
+
+          newMessage.addAttachmentId(binaryContent.getId()); // 메시지에 파일 id 정보 업데이트
+          messageRepository.save(newMessage);
+        } catch (IOException e) {
+          e.printStackTrace();
+          throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION);
+        }
+      });
+    }
 
     return messageMapper.toResponse(newMessage);
   }

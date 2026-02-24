@@ -49,30 +49,33 @@ public class BasicUserService implements UserService {
     User newUser = userMapper.toUser(userPostDto);
 
     // 프로필 정보를 선택적으로 저장
-    File uploadDest = new File(
-        Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static", "images",
-            profile.getOriginalFilename()).toString());
+    if (profile != null) {
+      UUID randomId = UUID.randomUUID();
+      File uploadDest = new File(
+          Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static", "images",
+              randomId + "_" + profile.getOriginalFilename()).toString());
 
-    if (!uploadDest.getParentFile().exists()) {
-      uploadDest.getParentFile().mkdirs();
-    }
+      if (!uploadDest.getParentFile().exists()) {
+        uploadDest.getParentFile().mkdirs();
+      }
 
-    try {
-      BinaryContent binaryContent = new BinaryContent(
-          newUser.getId(),
-          null,
-          profile.getOriginalFilename(),
-          (int) profile.getSize(),
-          profile.getContentType(),
-          profile.getBytes()
-      );
-      binaryContentRepository.save(binaryContent);
-      profile.transferTo(new File(uploadDest.toString()));
+      try {
+        BinaryContent binaryContent = new BinaryContent(
+            newUser.getId(),
+            null,
+            randomId + "_" + profile.getOriginalFilename(),
+            (int) profile.getSize(),
+            profile.getContentType(),
+            profile.getBytes()
+        );
+        binaryContentRepository.save(binaryContent);
+        profile.transferTo(new File(uploadDest.toString()));
 
-      newUser.updateProfileId(binaryContent.getId()); // user에 프로필 정보 업데이트
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION);
+        newUser.updateProfileId(binaryContent.getId()); // user에 프로필 정보 업데이트
+      } catch (IOException e) {
+        e.printStackTrace();
+        throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION);
+      }
     }
 
     // UserStatus를 같이 생성 및 저장
@@ -137,30 +140,32 @@ public class BasicUserService implements UserService {
         .ifPresent(updatedUser::updatePassword);
 
     // todo: binarycontent 업데이트
-    File uploadDest = new File(
-        Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static", "images",
-            profile.getOriginalFilename()).toString());
+    if (profile != null) {
+      File uploadDest = new File(
+          Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static", "images",
+              profile.getOriginalFilename()).toString());
 
-    if (!uploadDest.getParentFile().exists()) {
-      uploadDest.getParentFile().mkdirs();
-    }
+      if (!uploadDest.getParentFile().exists()) {
+        uploadDest.getParentFile().mkdirs();
+      }
 
-    try {
-      BinaryContent binaryContent = new BinaryContent(
-          updatedUser.getId(),
-          null,
-          profile.getOriginalFilename(),
-          (int) profile.getSize(),
-          profile.getContentType(),
-          profile.getBytes()
-      );
-      binaryContentRepository.save(binaryContent);
-      profile.transferTo(new File(uploadDest.toString()));
+      try {
+        BinaryContent binaryContent = new BinaryContent(
+            updatedUser.getId(),
+            null,
+            profile.getOriginalFilename(),
+            (int) profile.getSize(),
+            profile.getContentType(),
+            profile.getBytes()
+        );
+        binaryContentRepository.save(binaryContent);
+        profile.transferTo(new File(uploadDest.toString()));
 
-      updatedUser.updateProfileId(binaryContent.getId()); // user에 프로필 정보 업데이트
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION);
+        updatedUser.updateProfileId(binaryContent.getId()); // user에 프로필 정보 업데이트
+      } catch (IOException e) {
+        e.printStackTrace();
+        throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION);
+      }
     }
 
     return userMapper.toUserResponseDto(userRepository.save(updatedUser), getOnlineStatus(userId));
