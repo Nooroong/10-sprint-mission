@@ -7,7 +7,6 @@ import com.sprint.mission.discodeit.dto.PublicChannelPostDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.BusinessLogicException;
 import com.sprint.mission.discodeit.exception.ExceptionCode;
@@ -53,14 +52,6 @@ public class BasicChannelService implements ChannelService {
 
     Channel channel = channelRepository.save(
         channelMapper.toChannel(privateChannelPostDto)
-    );
-
-    // 채널에 참여하는 User의 정보를 받아 User 별 ReadStatus 정보를 생성
-    privateChannelPostDto.participantIds().forEach(userId -> {
-          readStatusRepository.save(
-              new ReadStatus(userId, channel.getId(), Instant.now())
-          );
-        }
     );
 
     // 유저의 채널 리스트에 채널 id 추가 및 저장

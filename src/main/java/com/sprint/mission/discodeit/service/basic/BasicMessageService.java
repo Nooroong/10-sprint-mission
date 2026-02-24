@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.dto.MessagePostDto;
 import com.sprint.mission.discodeit.dto.MessageResponseDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.BusinessLogicException;
@@ -57,7 +58,8 @@ public class BasicMessageService implements MessageService {
                 messagePostDto.authorId())
         );
 
-    if (user.getChannelIds().stream()
+    // private channel은 참가자만 메시지를 보낼 수 있음.
+    if (channel.getType() == ChannelType.PRIVATE && user.getChannelIds().stream()
         .noneMatch(chId -> chId.equals(messagePostDto.channelId()))) {
       throw new BusinessLogicException(ExceptionCode.NOT_INVITED_IN_CHANNEL);
     }
