@@ -8,15 +8,13 @@ import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
 import com.sprint.mission.discodeit.exception.BusinessLogicException;
 import com.sprint.mission.discodeit.exception.ExceptionCode;
-import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
-import java.io.File;
+import com.sprint.mission.discodeit.util.AttachmentUtil;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,10 +30,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class BasicUserService implements UserService {
 
   private final UserMapper userMapper;
-  private final BinaryContentMapper binaryContentMapper;
   private final UserRepository userRepository;
   private final UserStatusRepository userStatusRepository;
   private final BinaryContentRepository binaryContentRepository;
+  private final AttachmentUtil attachmentUtil;
 
   @Override
   public UserResponseDto create(UserPostDto userPostDto, MultipartFile profile) {
@@ -49,17 +47,9 @@ public class BasicUserService implements UserService {
     User newUser = userMapper.toUser(userPostDto);
 
     // 프로필 정보를 선택적으로 저장
-    if (profile != null) {
-      UUID randomId = UUID.randomUUID();
-      File uploadDest = new File(
-          Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static", "images",
-              randomId + "_" + profile.getOriginalFilename()).toString());
-
-      if (!uploadDest.getParentFile().exists()) {
-        uploadDest.getParentFile().mkdirs();
-      }
-
+    Optional.ofNullable(profile).ifPresent(p -> {
       try {
+        UUID randomId = UUID.randomUUID();
         BinaryContent binaryContent = new BinaryContent(
             newUser.getId(),
             null,
@@ -68,15 +58,15 @@ public class BasicUserService implements UserService {
             profile.getContentType(),
             profile.getBytes()
         );
+        attachmentUtil.saveOne(randomId, p);
         binaryContentRepository.save(binaryContent);
-        profile.transferTo(new File(uploadDest.toString()));
 
         newUser.updateProfileId(binaryContent.getId()); // user에 프로필 정보 업데이트
       } catch (IOException e) {
         e.printStackTrace();
         throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION);
       }
-    }
+    });
 
     // UserStatus를 같이 생성 및 저장
     userStatusRepository.save(new UserStatus(newUser.getId()));
@@ -120,7 +110,7 @@ public class BasicUserService implements UserService {
 
   @Override
   public List<UserResponseDto> findAll() {
-    // todo: UserStatus의 isLogined를 활용하여 온라인 상태 반환
+    // UserStatus의 isLoggedIn을 활용하여 온라인 상태 반환
     return userRepository.findAll().stream()
         .map(user -> userMapper.toUserResponseDto(user, getOnlineStatus(user.getId())))
         .collect(Collectors.toList());
@@ -138,35 +128,28 @@ public class BasicUserService implements UserService {
         .ifPresent(updatedUser::updateEmail);
     Optional.ofNullable(userPatchDto.newPassword())
         .ifPresent(updatedUser::updatePassword);
+    Optional.ofNullable(profile)
+        .ifPresent(p -> {
+              try {
+                UUID randomId = UUID.randomUUID();
+                BinaryContent binaryContent = new BinaryContent(
+                    updatedUser.getId(),
+                    null,
+                    randomId + "_" + profile.getOriginalFilename(),
+                    (int) profile.getSize(),
+                    profile.getContentType(),
+                    profile.getBytes()
+                );
+                attachmentUtil.saveOne(randomId, p);
+                binaryContentRepository.save(binaryContent);
 
-    // todo: binarycontent 업데이트
-    if (profile != null) {
-      File uploadDest = new File(
-          Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static", "images",
-              profile.getOriginalFilename()).toString());
-
-      if (!uploadDest.getParentFile().exists()) {
-        uploadDest.getParentFile().mkdirs();
-      }
-
-      try {
-        BinaryContent binaryContent = new BinaryContent(
-            updatedUser.getId(),
-            null,
-            profile.getOriginalFilename(),
-            (int) profile.getSize(),
-            profile.getContentType(),
-            profile.getBytes()
+                updatedUser.updateProfileId(binaryContent.getId()); // user에 프로필 정보 업데이트
+              } catch (IOException e) {
+                e.printStackTrace();
+                throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION);
+              }
+            }
         );
-        binaryContentRepository.save(binaryContent);
-        profile.transferTo(new File(uploadDest.toString()));
-
-        updatedUser.updateProfileId(binaryContent.getId()); // user에 프로필 정보 업데이트
-      } catch (IOException e) {
-        e.printStackTrace();
-        throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION);
-      }
-    }
 
     return userMapper.toUserResponseDto(userRepository.save(updatedUser), getOnlineStatus(userId));
   }

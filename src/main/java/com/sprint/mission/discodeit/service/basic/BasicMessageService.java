@@ -10,17 +10,14 @@ import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.BusinessLogicException;
 import com.sprint.mission.discodeit.exception.ExceptionCode;
-import com.sprint.mission.discodeit.mapper.BinaryContentMapper;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.util.AttachmentSaveUtil;
-import java.io.File;
+import com.sprint.mission.discodeit.util.AttachmentUtil;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -40,8 +37,7 @@ public class BasicMessageService implements MessageService {
   private final BinaryContentRepository binaryContentRepository;
 
   private final MessageMapper messageMapper;
-  private final BinaryContentMapper binaryContentMapper;
-  private final AttachmentSaveUtil attachmentSaveUtil;
+  private final AttachmentUtil attachmentUtil;
 
   @Override
   public MessageResponseDto create(MessagePostDto messagePostDto, List<MultipartFile> attachments)
@@ -73,23 +69,11 @@ public class BasicMessageService implements MessageService {
     user.addMessageId(newMessage.getId());
     userRepository.save(user);
 
-    // 선택적으로 첨부파일 등록
-    // 첨부파일 영속화 + 레코드 추가 + 양방향 연결
-    // todo: UserService처럼 파일 저장 로직 필요
-//    attachmentSaveUtil.saveAttachment(attachments);
-    if (attachments != null) {
-      attachments.forEach(attachment -> {
-        UUID randomId = UUID.randomUUID();
-        File uploadDest = new File(
-            Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static",
-                "images",
-                randomId + "_" + attachment.getOriginalFilename()).toString());
-
-        if (!uploadDest.getParentFile().exists()) {
-          uploadDest.getParentFile().mkdirs();
-        }
-
+    // 선택적으로 첨부파일 등록(첨부파일 영속화 + 레코드 추가 + 양방향 연결)
+    Optional.ofNullable(attachments).ifPresent(attachmentList -> {
+      attachmentList.forEach(attachment -> {
         try {
+          UUID randomId = UUID.randomUUID();
           BinaryContent binaryContent = new BinaryContent(
               null,
               newMessage.getId(),
@@ -98,8 +82,8 @@ public class BasicMessageService implements MessageService {
               attachment.getContentType(),
               attachment.getBytes()
           );
+          attachmentUtil.saveOne(randomId, attachment);
           binaryContentRepository.save(binaryContent);
-          attachment.transferTo(new File(uploadDest.toString()));
 
           newMessage.addAttachmentId(binaryContent.getId()); // 메시지에 파일 id 정보 업데이트
           messageRepository.save(newMessage);
@@ -108,7 +92,8 @@ public class BasicMessageService implements MessageService {
           throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION);
         }
       });
-    }
+
+    });
 
     return messageMapper.toResponse(newMessage);
   }
