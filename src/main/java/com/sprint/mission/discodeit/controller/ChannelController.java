@@ -5,7 +5,6 @@ import com.sprint.mission.discodeit.dto.ChannelResponseDto;
 import com.sprint.mission.discodeit.dto.PrivateChannelPostDto;
 import com.sprint.mission.discodeit.dto.PublicChannelPostDto;
 import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.util.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,32 +30,32 @@ public class ChannelController {
 
   @RequestMapping(value = "/public", method = RequestMethod.POST)
   @Operation(summary = "Public Channel 생성", operationId = "create_3")
-  public ResponseEntity<SuccessResponse<ChannelResponseDto>> createPublicChannel(
+  public ResponseEntity<ChannelResponseDto> createPublicChannel(
       @RequestBody PublicChannelPostDto publicChannelPostDto) {
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(SuccessResponse.success(channelService.createPublicChannel(publicChannelPostDto)));
+        .body(channelService.createPublicChannel(publicChannelPostDto));
   }
 
   @RequestMapping(value = "/private", method = RequestMethod.POST)
   @Operation(summary = "Private Channel 생성", operationId = "create_4")
-  public ResponseEntity<SuccessResponse<ChannelResponseDto>> createPrivateChannel(
+  public ResponseEntity<ChannelResponseDto> createPrivateChannel(
       @RequestBody PrivateChannelPostDto privateChannelPostDto) {
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(SuccessResponse.success(channelService.createPrivateChannel(privateChannelPostDto)));
+        .body(channelService.createPrivateChannel(privateChannelPostDto));
   }
 
   @RequestMapping(value = "/{channelId}", method = RequestMethod.PATCH)
   @Operation(summary = "Channel 정보 수정", operationId = "update_3")
-  public ResponseEntity<SuccessResponse<ChannelResponseDto>> updatePublicChannel(
+  public ResponseEntity<ChannelResponseDto> updatePublicChannel(
       @Parameter(name = "channelId", description = "수정할 Channel ID") @PathVariable UUID channelId,
       @RequestBody ChannelPatchDto channelPatchDto) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(SuccessResponse.success(channelService.update(channelId, channelPatchDto)));
+        .body(channelService.update(channelId, channelPatchDto));
   }
 
   @RequestMapping(value = "/{channelId}", method = RequestMethod.DELETE)
   @Operation(summary = "Channel 삭제", operationId = "delete_2")
-  public ResponseEntity<SuccessResponse<ChannelResponseDto>> updatePublicChannel(
+  public ResponseEntity<ChannelResponseDto> updatePublicChannel(
       @Parameter(name = "channelId", description = "삭제할 Channel ID") @PathVariable UUID channelId) {
     channelService.delete(channelId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -64,9 +63,9 @@ public class ChannelController {
 
   @RequestMapping(method = RequestMethod.GET)
   @Operation(summary = "User가 참여 중인 Channel 목록 조회", operationId = "findAll_1")
-  public ResponseEntity<SuccessResponse<List<ChannelResponseDto>>> getChannelsByUserId(
+  public ResponseEntity<List<ChannelResponseDto>> getChannelsByUserId(
       @Parameter(name = "userId", description = "조회할 User ID") @RequestParam(value = "userId") UUID userId) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(SuccessResponse.success(channelService.findAllByUserId(userId)));
+        .body(channelService.findAllByUserId(userId));
   }
 }

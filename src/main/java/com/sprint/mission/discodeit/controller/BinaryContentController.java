@@ -3,7 +3,6 @@ package com.sprint.mission.discodeit.controller;
 import com.sprint.mission.discodeit.dto.BinaryContentResponseDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.util.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,22 +28,22 @@ public class BinaryContentController {
 
   @RequestMapping(method = RequestMethod.GET)
   @Operation(summary = "여러 첨부 파일 조회", operationId = "findAllByIdIn")
-  public ResponseEntity<SuccessResponse<List<BinaryContent>>> getBinaryContentByIds(
+  public ResponseEntity<List<BinaryContent>> getBinaryContentByIds(
       @Parameter(name = "binaryContentIds", description = "조회할 첨부 파일 ID 목록") @RequestParam("binaryContentIds") List<UUID> binaryContentIds)
       throws
       IOException {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(SuccessResponse.success(binaryContentService.findAllByIdIn(binaryContentIds)));
+        .body(binaryContentService.findAllByIdIn(binaryContentIds));
   }
 
   @RequestMapping(value = "/{binaryContentId}", method = RequestMethod.GET)
   @Operation(summary = "첨부 파일 조회", operationId = "find")
-  public ResponseEntity<SuccessResponse<BinaryContentResponseDto>> getBinaryContent(
+  public ResponseEntity<BinaryContentResponseDto> getBinaryContent(
       @Parameter(name = "binaryContentId", description = "조회할 첨부 파일 ID") @PathVariable("binaryContentId") UUID binaryContentId)
       throws
       IOException {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(SuccessResponse.success(binaryContentService.findById(binaryContentId)));
+        .body(binaryContentService.findById(binaryContentId));
   }
 
 }

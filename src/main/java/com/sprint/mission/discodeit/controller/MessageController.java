@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.dto.MessagePatchDto;
 import com.sprint.mission.discodeit.dto.MessagePostDto;
 import com.sprint.mission.discodeit.dto.MessageResponseDto;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.util.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,33 +32,33 @@ public class MessageController {
 
   @RequestMapping(method = RequestMethod.GET)
   @Operation(summary = "Channel의 Message 목록 조회", operationId = "findAllByChannelId")
-  public ResponseEntity<SuccessResponse<List<MessageResponseDto>>> getMessage(
+  public ResponseEntity<List<MessageResponseDto>> getMessage(
       @Parameter(name = "channelId", description = "조회할 Channel ID") @RequestParam(value = "channelId") UUID channelId) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(SuccessResponse.success(messageService.findByChannelId(channelId)));
+        .body(messageService.findByChannelId(channelId));
   }
 
   @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(summary = "Message 생성", operationId = "create_2")
-  public ResponseEntity<SuccessResponse<MessageResponseDto>> createMessage(
-      @RequestPart MessagePostDto messagePostDto,
-      @Parameter(description = "Message 첨부 파일들") @RequestPart List<MultipartFile> attachments) {
+  public ResponseEntity<MessageResponseDto> createMessage(
+      @RequestPart(name = "messageCreateRequest") MessagePostDto messagePostDto,
+      @Parameter(description = "Message 첨부 파일들") @RequestPart(name = "attachments", required = false) List<MultipartFile> attachments) {
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(SuccessResponse.success(messageService.create(messagePostDto, attachments)));
+        .body(messageService.create(messagePostDto, attachments));
   }
 
   @RequestMapping(value = "/{messageId}", method = RequestMethod.PATCH)
   @Operation(summary = "Message 내용 수정", operationId = "update_2")
-  public ResponseEntity<SuccessResponse<MessageResponseDto>> updateMessage(
+  public ResponseEntity<MessageResponseDto> updateMessage(
       @Parameter(name = "messageId", description = "수정할 Message ID") @PathVariable UUID messageId,
       @RequestBody MessagePatchDto messagePatchDto) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(SuccessResponse.success(messageService.updateById(messageId, messagePatchDto)));
+        .body(messageService.updateById(messageId, messagePatchDto));
   }
 
   @RequestMapping(value = "/{messageId}", method = RequestMethod.DELETE)
   @Operation(summary = "Message 삭제", operationId = "delete_1")
-  public ResponseEntity<SuccessResponse<?>> deleteMessage(
+  public ResponseEntity<?> deleteMessage(
       @Parameter(name = "messageId", description = "삭제할 Message ID") @PathVariable UUID messageId) {
     messageService.delete(messageId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

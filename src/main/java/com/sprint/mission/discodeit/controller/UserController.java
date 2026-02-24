@@ -1,13 +1,14 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.UserDto;
 import com.sprint.mission.discodeit.dto.UserPatchDto;
 import com.sprint.mission.discodeit.dto.UserPostDto;
+import com.sprint.mission.discodeit.dto.UserResponseDto;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.util.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -31,18 +32,18 @@ public class UserController {
 
   @RequestMapping(method = RequestMethod.GET)
   @Operation(summary = "전체 User 목록 조회", operationId = "findAll")
-  public ResponseEntity<SuccessResponse<List<UserDto>>> findAll() {
-    return ResponseEntity.ok(SuccessResponse.success(userService.findAll()));
+  public ResponseEntity<List<UserResponseDto>> findAll() {
+    return ResponseEntity.ok(userService.findAll());
   }
 
   @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(summary = "User 등록", operationId = "create")
-  public ResponseEntity<SuccessResponse<UserDto>> createUser(
-      @RequestPart("userCreateRequest") UserPostDto userPostDto,
-      @Parameter(description = "User 프로필 이미지") @RequestPart("profile") MultipartFile profile) {
+  public ResponseEntity<UserResponseDto> createUser(
+      @Valid @RequestPart("userCreateRequest") UserPostDto userPostDto,
+      @Parameter(description = "User 프로필 이미지") @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(SuccessResponse.success(userService.create(userPostDto, profile)));
+        .body(userService.create(userPostDto, profile));
   }
 
   @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
@@ -53,14 +54,12 @@ public class UserController {
     return ResponseEntity.noContent().build();
   }
 
-  // 사용자 정보 수정
-  // todo: 수정할 profileImage 필요
   @RequestMapping(value = "/{userId}", method = RequestMethod.PATCH, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(summary = "User 정보 수정", operationId = "update")
-  public ResponseEntity<SuccessResponse<UserDto>> updateUser(
+  public ResponseEntity<SuccessResponse<UserResponseDto>> updateUser(
       @Parameter(name = "userId", description = "수정할 User ID") @PathVariable UUID userId,
       @RequestPart("userUpdateRequest") UserPatchDto userPatchDto,
-      @Parameter(name = "profile", description = "수정할 User 프로필 이미지") @RequestPart MultipartFile profile) {
+      @Parameter(name = "profile", description = "수정할 User 프로필 이미지") @RequestPart(required = false) MultipartFile profile) {
     return ResponseEntity.status(HttpStatus.OK)
         .body(SuccessResponse.success(userService.updateUser(userId, userPatchDto, profile)));
   }
