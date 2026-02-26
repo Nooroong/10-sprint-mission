@@ -5,10 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record BinaryContentPostDto(
-    @NotBlank
+    @NotNull
     UUID userId,
 
-    @NotBlank
+    @NotNull
     UUID messageId,
 
     @NotBlank
