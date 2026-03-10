@@ -1,30 +1,16 @@
 package com.sprint.mission.discodeit.mapper;
 
+import com.sprint.mission.discodeit.dto.ReadStatusDto;
 import com.sprint.mission.discodeit.dto.ReadStatusPostDto;
-import com.sprint.mission.discodeit.dto.ReadStatusResponseDto;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import java.time.Instant;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
-@Component
-public class ReadStatusMapper {
+@Mapper(
+    componentModel = "spring"
+)
+public interface ReadStatusMapper {
 
-  public ReadStatusResponseDto toResponseDto(ReadStatus readStatus) {
-    return new ReadStatusResponseDto(
-        readStatus.getId(),
-        readStatus.getCreatedAt(),
-        readStatus.getUpdatedAt(),
-        readStatus.getUserId(),
-        readStatus.getChannelId(),
-        readStatus.getLastReadTime()
-    );
-  }
+    ReadStatusDto toResponseDto(ReadStatus readStatus);
 
-  public ReadStatus fromDto(ReadStatusPostDto readStatusPostDto) {
-    return new ReadStatus(
-        readStatusPostDto.userId(),
-        readStatusPostDto.channelId(),
-        Instant.now()
-    );
-  }
+    ReadStatus toEntity(ReadStatusPostDto readStatusPostDto);
 }

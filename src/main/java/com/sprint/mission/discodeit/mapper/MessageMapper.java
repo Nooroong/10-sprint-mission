@@ -1,38 +1,18 @@
 package com.sprint.mission.discodeit.mapper;
 
+import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.MessagePostDto;
-import com.sprint.mission.discodeit.dto.MessageResponseDto;
 import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.repository.BinaryContentRepository;
-import java.util.ArrayList;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.ReportingPolicy;
 
-@Component
-@RequiredArgsConstructor
-public class MessageMapper {
+@Mapper(
+    componentModel = "spring",
+    unmappedTargetPolicy = ReportingPolicy.IGNORE
+)
+public interface MessageMapper {
 
-  private final BinaryContentRepository binaryContentRepository;
+    Message toEntity(MessagePostDto messagePostDto);
 
-  public Message toMessage(MessagePostDto messagePostDto) {
-    return new Message(
-        messagePostDto.authorId(),
-        messagePostDto.channelId(),
-        messagePostDto.content(),
-        new ArrayList<>()
-    );
-  }
-
-  public MessageResponseDto toResponse(Message message) {
-    return new MessageResponseDto(
-        message.getId(),
-        message.getCreatedAt(),
-        message.getUpdatedAt(),
-        message.getContent(),
-        message.getChannelId(),
-        message.getAuthorId(),
-        message.getAttachmentIds()
-    );
-  }
-
+    MessageDto toDto(Message message);
 }
