@@ -1,66 +1,85 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
+@Entity
+@Table(name = "channels")
 @Getter
-public class Channel extends Base {
+@Setter
+@NoArgsConstructor
+@RequiredArgsConstructor
+public class Channel extends BaseUpdatableEntity {
 
-  private final List<UUID> userIds;
-  private final List<UUID> messageIds;
-  private ChannelType type;
-  private String name;
-  private String description;
+    @Column(length = 10, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ChannelType type;
 
-  public Channel(ChannelType type, String name, String description) {
-    this.type = type;
-    this.name = name;
-    this.description = description;
-    this.userIds = new ArrayList<>();
-    this.messageIds = new ArrayList<>();
-  }
+    @Column(length = 100)
+    private String name;
 
-  public void updateName(String name) {
-    this.name = name;
-    updateUpdatedAt(Instant.now());
-  }
+    @Column(length = 500)
+    private String description;
 
-  public void updateDescription(String description) {
-    this.description = description;
-    updateUpdatedAt(Instant.now());
-  }
+    @OneToMany(mappedBy = "channel")
+    private List<Message> messageList = new ArrayList<>();
 
-  public void addUserId(UUID userId) {
-    this.userIds.add(userId);
-  }
+    @OneToMany(mappedBy = "channel")
+    private List<ReadStatus> readStatusList = new ArrayList<>();
 
-  public void addMessage(UUID messageId) {
-    this.messageIds.add(messageId);
-  }
 
-  @Override
-  public String toString() {
-    return "{" + name + userIds + "}";
+    public void updateName(String name) {
+        this.name = name;
+        updateUpdatedAt(Instant.now());
+    }
 
-  }
+    public void updateDescription(String description) {
+        this.description = description;
+        updateUpdatedAt(Instant.now());
+    }
 
-  @Override
-  public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (!(o instanceof Channel channel)) {
-			return false;
-		}
-    return Objects.equals(this.getId(), channel.getId());
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(this.getId());
-  }
+    public void addMessage(Message message) {
+        this.messageList.add(message);
+    }
+
+    @Override
+    public String toString() {
+        return "Channel{" +
+            "name='" + name + '\'' +
+            ", description='" + description + '\'' +
+            ", type=" + type +
+            ", messageList=" + messageList +
+            ", userStatusList=" + readStatusList +
+            '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Channel channel)) {
+            return false;
+        }
+        return Objects.equals(this.getId(), channel.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.getId());
+    }
 }

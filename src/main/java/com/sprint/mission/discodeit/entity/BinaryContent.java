@@ -1,25 +1,32 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.util.UUID;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
+@Entity
+@Table(name = "binaey_contents")
 @Getter
-public class BinaryContent extends Base {
+@Setter
+@NoArgsConstructor
+@RequiredArgsConstructor
+public class BinaryContent extends BaseEntity {
 
-  private UUID userId; // 해당 프로필을 설정한 유저의 아이디
-  private UUID messageId; // 해당 파일이 첨부된 메시지의 아이디
-  private String fileName;
-  private int size;
-  private String contentType;
-  private byte[] bytes;
+    @Column(length = 255, nullable = false)
+    private String fileName;
 
-  public BinaryContent(UUID userId, UUID messageId, String fileName, int size, String contentType,
-      byte[] bytes) {
-    this.userId = userId;
-    this.messageId = messageId;
-    this.fileName = fileName;
-    this.size = size;
-    this.contentType = contentType;
-    this.bytes = bytes;
-  }
+    @Column(nullable = false)
+    private long size;
+
+    @Column(length = 100, nullable = false)
+    private String contentType;
+
+    @Column(nullable = false)
+    private byte[] bytes;
+
 }

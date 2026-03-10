@@ -1,33 +1,53 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.UUID;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
+@Entity
+@Table(name = "user_statuses")
 @Getter
-public class UserStatus extends Base {
+@Setter
+@NoArgsConstructor
+@RequiredArgsConstructor
+public class UserStatus extends BaseUpdatableEntity {
 
-  private UUID userId;
-  private Instant lastActiveAt;
-  private boolean online;
+    @OneToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-  public UserStatus(UUID userId) {
-    this.userId = userId;
-    this.lastActiveAt = Instant.now();
-    this.online = true;
-  }
+    @Column(nullable = false)
+    private Instant lastActiveAt;
 
-  public void updateLastAccessedTime(Instant lastActiveAt) {
-    this.lastActiveAt = lastActiveAt;
-  }
+    public UserStatus(User user) {
+        this.user = user;
+        this.lastActiveAt = Instant.now();
+    }
 
-  public void updateOnline(boolean online) {
-    this.online = online;
-  }
+    public void updateUser(User user) {
+        this.user = user;
+        if (user.getStatus() == null) {
+            user.updateStatus(this);
+        }
+    }
 
-  public boolean isLoggedIn() {
-    return Instant.now().isBefore(lastActiveAt.plus(5, ChronoUnit.MINUTES));
-  }
+    public void updateLastAccessedTime(Instant lastActiveAt) {
+        this.lastActiveAt = lastActiveAt;
+    }
+
+
+    public boolean isLoggedIn() {
+        return Instant.now().isBefore(lastActiveAt.plus(5, ChronoUnit.MINUTES));
+    }
 
 }

@@ -1,41 +1,60 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
+@Entity(name = "messages")
 @Getter
-public class Message extends Base {
+@Setter
+@NoArgsConstructor
+@RequiredArgsConstructor
+public class Message extends BaseUpdatableEntity {
 
-  private String content;
-  private UUID channelId;
-  private UUID authorId;
-  private List<UUID> attachmentIds;
+    @Lob // TEXT type
+    @Column
+    private String content;
 
-  public Message(UUID authorId, UUID channelId, String content, List<UUID> attachmentIds) {
-    this.authorId = authorId;
-    this.channelId = channelId;
-    this.content = content;
-    this.attachmentIds = attachmentIds != null ? attachmentIds : new ArrayList<>();
-  }
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "channel_id", nullable = false)
+    private Channel channel;
 
-  public void updateContent(String content) {
-    this.content = content;
-    updateUpdatedAt(Instant.now());
-  }
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL) // ON DELETE SET NULL
+    private User author;
 
-  public void addAttachmentId(UUID attachmentId) {
-    attachmentIds.add(attachmentId);
-  }
+    // todo: 중간 테이블은 어떻게?
+    private List<BinaryContent> attachments = new ArrayList<>();
 
-  @Override
-  public String toString() {
-    return "{" +
-        channelId + ">" +
-        authorId + ": " +
-        content +
-        "(" + getUpdatedAt() + ")}";
-  }
+    public void updateContent(String content) {
+        this.content = content;
+        updateUpdatedAt(Instant.now());
+    }
+
+    public void addAttachment(BinaryContent attachment) {
+        attachments.add(attachment);
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+            channel + ">" +
+            author + ": " +
+            content +
+            "(" + super.getUpdatedAt() + ")}";
+    }
 }
