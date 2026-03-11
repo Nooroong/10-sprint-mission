@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -13,17 +14,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
-@NoArgsConstructor
 @RequiredArgsConstructor
 public class User extends BaseUpdatableEntity {
 
@@ -42,11 +42,11 @@ public class User extends BaseUpdatableEntity {
     @JoinColumn(name = "profile_id", unique = true)
     private BinaryContent profile;
 
-    // todo: 제약조건 확인하기
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<ReadStatus> readStatusList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.SET_NULL) // ON DELETE SET NULL
     private List<Message> messageList = new ArrayList<>(); // 특정 유저가 생성한 모든 메시지
 
 
@@ -77,13 +77,6 @@ public class User extends BaseUpdatableEntity {
         this.status = status;
         if (status.getUser() == null) {
             status.updateUser(this);
-        }
-    }
-
-    public void addReadStatus(ReadStatus readStatus) {
-        this.readStatusList.add(readStatus);
-        if (readStatus.getUser() == null) {
-            readStatus.updateUser(this);
         }
     }
 
