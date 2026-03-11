@@ -1,7 +1,8 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.BinaryContentResponseDto;
+import com.sprint.mission.discodeit.dto.BinaryContentDto;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,26 +24,38 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "BinaryContent", description = "BinaryContent contrlller 입니다.")
 public class BinaryContentController {
 
-  private final BinaryContentService binaryContentService;
+    private final BinaryContentService binaryContentService;
+    private final BinaryContentStorage binaryContentStorage;
 
-  @RequestMapping(method = RequestMethod.GET)
-  @Operation(summary = "여러 첨부 파일 조회", operationId = "findAllByIdIn")
-  public ResponseEntity<List<BinaryContentResponseDto>> getBinaryContentByIds(
-      @Parameter(name = "binaryContentIds", description = "조회할 첨부 파일 ID 목록") @RequestParam("binaryContentIds") List<UUID> binaryContentIds)
-      throws
-      IOException {
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(binaryContentService.findAllByIdIn(binaryContentIds));
-  }
+    @RequestMapping(method = RequestMethod.GET)
+    @Operation(summary = "여러 첨부 파일 조회", operationId = "findAllByIdIn")
+    public ResponseEntity<List<BinaryContentDto>> getBinaryContentByIds(
+        @Parameter(name = "binaryContentIds", description = "조회할 첨부 파일 ID 목록") @RequestParam("binaryContentIds") List<UUID> binaryContentIds)
+        throws
+        IOException {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(binaryContentService.findAllByIdIn(binaryContentIds));
+    }
 
-  @RequestMapping(value = "/{binaryContentId}", method = RequestMethod.GET)
-  @Operation(summary = "첨부 파일 조회", operationId = "find")
-  public ResponseEntity<BinaryContentResponseDto> getBinaryContent(
-      @Parameter(name = "binaryContentId", description = "조회할 첨부 파일 ID") @PathVariable("binaryContentId") UUID binaryContentId)
-      throws
-      IOException {
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(binaryContentService.findById(binaryContentId));
-  }
+    @RequestMapping(value = "/{binaryContentId}", method = RequestMethod.GET)
+    @Operation(summary = "첨부 파일 조회", operationId = "find")
+    public ResponseEntity<BinaryContentDto> getBinaryContent(
+        @Parameter(name = "binaryContentId", description = "조회할 첨부 파일 ID") @PathVariable("binaryContentId") UUID binaryContentId)
+        throws
+        IOException {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(binaryContentService.findById(binaryContentId));
+    }
 
+
+    @RequestMapping(value = "/{binaryContentId}/download", method = RequestMethod.GET)
+    @Operation(summary = "파일 다운로드", operationId = "download")
+    public ResponseEntity<?> downloadBinaryContent(
+        @Parameter(name = "binaryContentId", description = "다운로드할 파일 ID") @PathVariable("binaryContentId") UUID binaryContentId)
+        throws
+        IOException {
+        return binaryContentStorage.download(
+            binaryContentService.findById(binaryContentId)
+        );
+    }
 }

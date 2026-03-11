@@ -1,10 +1,13 @@
 package com.sprint.mission.discodeit.service;
 
+import com.sprint.mission.discodeit.dto.MessageDto;
 import com.sprint.mission.discodeit.dto.MessagePatchDto;
 import com.sprint.mission.discodeit.dto.MessagePostDto;
-import com.sprint.mission.discodeit.dto.MessageResponseDto;
+import com.sprint.mission.discodeit.dto.response.PageResponse;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -14,15 +17,16 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface MessageService {
 
-  MessageResponseDto create(MessagePostDto messagePostDto, List<MultipartFile> attachments);
+    MessageDto create(MessagePostDto messagePostDto, List<MultipartFile> attachments);
 
-  MessageResponseDto findById(UUID id); // uuid로 단일 메시지 조회하기
+    MessageDto findById(UUID id); // uuid로 단일 메시지 조회하기
 
-  List<MessageResponseDto> findByUser(UUID userId); // 특정 유저의 전체 메시지 조회하기
+    List<MessageDto> findByUser(UUID userId); // 특정 유저의 전체 메시지 조회하기
 
-  List<MessageResponseDto> findByChannelId(UUID channelId); // 특정 채닐의 전체 메시지 조회하기
+    PageResponse<MessageDto> findByChannelId(UUID channelId, Instant cursor,
+        Pageable page); // 특정 채닐의 전체 메시지 조회하기
 
-  MessageResponseDto updateById(UUID messageId, MessagePatchDto messagePatchDTO); // 메시지 내용 수정
+    MessageDto updateById(UUID messageId, MessagePatchDto messagePatchDTO); // 메시지 내용 수정
 
-  void delete(UUID messageId);
+    void delete(UUID messageId);
 }
