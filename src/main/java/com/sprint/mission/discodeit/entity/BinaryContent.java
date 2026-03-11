@@ -4,17 +4,17 @@ import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "binaey_contents")
+@Table(name = "binary_contents")
 @Getter
 @Setter
-@NoArgsConstructor
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class BinaryContent extends BaseEntity {
 
     @Column(length = 255, nullable = false)
@@ -25,8 +25,4 @@ public class BinaryContent extends BaseEntity {
 
     @Column(length = 100, nullable = false)
     private String contentType;
-
-    @Column(nullable = false)
-    private byte[] bytes;
-
 }

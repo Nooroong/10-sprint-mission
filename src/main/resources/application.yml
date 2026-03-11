@@ -33,4 +33,8 @@ discodeit:
     type: file
     file-directory: .discodeit
   static:
-    file-directory: .attachments
+
+  storage:
+    type: local
+    local:
+      root-path: .attachments
