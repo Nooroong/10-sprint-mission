@@ -124,18 +124,32 @@ public class BasicMessageService implements MessageService {
             .toList();
     }
 
-  @Override
-  public List<MessageResponseDto> findByChannelId(UUID channelId) {
-    return channelRepository.findById(channelId)
-        .stream()
-        .map(Channel::getMessageIds)
-        .flatMap(Collection::stream)
-        .map(messageRepository::findById)
-        .flatMap(Optional::stream)
-        .map(messageMapper::toResponse)
-        .collect(Collectors.toList());
-  }
+    @Override
     @Transactional(readOnly = true)
+    public PageResponse<MessageDto> findByChannelId(UUID channelId, Instant cursor,
+        Pageable pageable) {
+        Slice<Message> messageSlice;
+
+        if (cursor == null) {
+            messageSlice = messageRepository
+                .findByChannelIdOrderByCreatedAtDesc(channelId, pageable);
+        } else {
+            messageSlice = messageRepository
+                .findByChannelIdAndCreatedAtLessThanOrderByCreatedAtDesc(channelId, cursor, pageable
+                );
+        }
+
+        Slice<MessageDto> messageDtoSlice = messageSlice.map(messageMapper::toDto);
+        Instant nextCursor = null;
+
+        if (messageSlice.hasNext() && !messageSlice.getContent().isEmpty()) {
+            nextCursor = messageSlice.getContent()
+                .get(messageSlice.getContent().size() - 1)
+                .getCreatedAt();
+        }
+
+        return pageResponseMapper.fromSlice(messageDtoSlice, nextCursor);
+    }
 
     @Override
     public MessageDto updateById(UUID messageId, MessagePatchDto messagePatchDto) {

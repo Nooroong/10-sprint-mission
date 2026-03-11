@@ -40,6 +40,12 @@ public class Message extends BaseUpdatableEntity {
     // todo: 중간 테이블은 어떻게?
     private List<BinaryContent> attachments = new ArrayList<>();
 
+    public Message(String content, Channel channel, User author) {
+        this.content = content;
+        this.channel = channel;
+        this.author = author;
+    }
+
     public void updateContent(String content) {
         this.content = content;
         updateUpdatedAt(Instant.now());

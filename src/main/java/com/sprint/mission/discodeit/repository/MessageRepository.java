@@ -6,4 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
     
+
+    Slice<Message> findByChannelIdOrderByCreatedAtDesc(UUID channelId, Pageable pageable);
+
+    Slice<Message> findByChannelIdAndCreatedAtLessThanOrderByCreatedAtDesc(
+        UUID channelId,
+        Instant cursor,
+        Pageable pageable
+    );
+
 }
