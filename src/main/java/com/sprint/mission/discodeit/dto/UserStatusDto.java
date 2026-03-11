@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.dto;
 
-import com.sprint.mission.discodeit.entity.User;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
@@ -13,6 +12,6 @@ import lombok.Setter;
 public class UserStatusDto {
 
     private UUID id;
-    private User user;
+    private UUID userId;
     private Instant lastReadAt;
 }

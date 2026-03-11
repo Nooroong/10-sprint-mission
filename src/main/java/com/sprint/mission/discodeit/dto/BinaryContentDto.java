@@ -14,5 +14,4 @@ public class BinaryContentDto {
     private String fileName;
     private long size;
     private String contentType;
-    private byte[] bytes;
 }
