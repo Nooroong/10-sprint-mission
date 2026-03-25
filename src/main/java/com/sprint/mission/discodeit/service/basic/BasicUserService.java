@@ -43,7 +43,7 @@ public class BasicUserService implements UserService {
         if (isUserNameDuplicated(userPostDto.getUsername()) ||
             isEmailDuplicated(userPostDto.getEmail())) {
             throw new BusinessLogicException(ExceptionCode.USER_INFO_DUPLICATED,
-                userPostDto.getEmail());
+                userPostDto.getEmail(), userPostDto.getUsername());
         }
 
         // 새 user 객체 생성
@@ -79,13 +79,11 @@ public class BasicUserService implements UserService {
     }
 
     public boolean isUserNameDuplicated(String username) {
-        return userRepository.findAll().stream()
-            .anyMatch(user -> user.getUsername().equals(username));
+        return userRepository.existsByUsername(username);
     }
 
     public boolean isEmailDuplicated(String email) {
-        return userRepository.findAll().stream()
-            .anyMatch(user -> user.getEmail().equals(email));
+        return userRepository.existsByEmail(email);
     }
 
     @Override
@@ -155,7 +153,7 @@ public class BasicUserService implements UserService {
         if (!userRepository.existsById(userId)) {
             throw new BusinessLogicException(ExceptionCode.USER_NOT_FOUND, userId);
         }
-
+        
         userRepository.deleteById(userId);
     }
 }

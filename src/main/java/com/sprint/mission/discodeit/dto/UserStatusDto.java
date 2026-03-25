@@ -13,5 +13,5 @@ public class UserStatusDto {
 
     private UUID id;
     private UUID userId;
-    private Instant lastReadAt;
+    private Instant lastActiveAt;
 }

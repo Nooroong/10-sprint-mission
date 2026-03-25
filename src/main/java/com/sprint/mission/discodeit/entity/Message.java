@@ -10,14 +10,18 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-@Entity(name = "messages")
+@Entity
+@Table(name = "messages")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,6 +37,7 @@ public class Message extends BaseUpdatableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL) // ON DELETE SET NULL 제약 조건 생성
     private User author;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

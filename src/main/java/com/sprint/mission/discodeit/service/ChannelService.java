@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.dto.ChannelDto;
 import com.sprint.mission.discodeit.dto.ChannelPatchDto;
 import com.sprint.mission.discodeit.dto.PrivateChannelPostDto;
 import com.sprint.mission.discodeit.dto.PublicChannelPostDto;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +25,4 @@ public interface ChannelService {
 
     void delete(UUID channelId);
 
-    boolean isUserInvolved(UUID channelId, UUID userId);
-
-    Instant findLastMessageTime(UUID channelId);
 }

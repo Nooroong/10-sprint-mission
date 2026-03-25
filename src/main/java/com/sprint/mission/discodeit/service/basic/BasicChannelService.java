@@ -6,8 +6,6 @@ import com.sprint.mission.discodeit.dto.PrivateChannelPostDto;
 import com.sprint.mission.discodeit.dto.PublicChannelPostDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ChannelType;
-import com.sprint.mission.discodeit.entity.Message;
-import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.exception.BusinessLogicException;
 import com.sprint.mission.discodeit.exception.ExceptionCode;
@@ -17,11 +15,9 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,8 +37,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     public ChannelDto createPublicChannel(PublicChannelPostDto publicChannelPostDto) {
         return channelMapper.toDto(
-            channelRepository.save(channelMapper.toEntity(publicChannelPostDto)),
-            null
+            channelRepository.save(channelMapper.toEntity(publicChannelPostDto))
         );
     }
 
@@ -60,7 +55,7 @@ public class BasicChannelService implements ChannelService {
         }
 
         channelRepository.save(channel);
-        return channelMapper.toDto(channel, null);
+        return channelMapper.toDto(channel);
     }
 
     @Override
@@ -70,37 +65,16 @@ public class BasicChannelService implements ChannelService {
             () -> new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND)
         );
 
-        return channelMapper.toDto(
-            channel,
-            findLastMessageTime(channelId)
-        );
+        return channelMapper.toDto(channel);
     }
 
     // 특정 유저가 속해있는 채널 목록을 조회
     @Override
     @Transactional(readOnly = true)
     public List<ChannelDto> findAllByUserId(UUID userId) {
-        List<ReadStatus> readStatusList = readStatusRepository.findByUserId(userId);
-
-        List<Channel> channelList = readStatusList.stream().map(ReadStatus::getChannel)
-            .collect(Collectors.toList());
-        channelList.addAll(channelRepository.findByType(ChannelType.PUBLIC));
-
-        return channelList.stream()
-            .map(channel -> {
-                    Instant lastMessageTime = channel.getMessageList().stream()
-                        .map(message -> messageRepository.findById(message.getId()))
-                        .flatMap(Optional::stream)
-                        .map(Message::getCreatedAt)
-                        .max(Instant::compareTo)
-                        .orElse(null);
-
-                    return channelMapper.toDto(
-                        channel,
-                        lastMessageTime
-                    );
-                }
-            ).collect(Collectors.toList());
+        return channelRepository.findByUserId(userId).stream()
+            .map(channelMapper::toDto)
+            .toList();
     }
 
     @Override
@@ -121,7 +95,7 @@ public class BasicChannelService implements ChannelService {
         Optional.ofNullable(channelPatchDto.newDescription())
             .ifPresent(updateChannel::updateDescription);
 
-        return channelMapper.toDto(updateChannel, findLastMessageTime(channelId));
+        return channelMapper.toDto(updateChannel);
     }
 
     @Override
@@ -142,7 +116,7 @@ public class BasicChannelService implements ChannelService {
         channelRepository.save(channel);
         userRepository.save(user);
 
-        return channelMapper.toDto(channel, findLastMessageTime(channelId));
+        return channelMapper.toDto(channel);
     }
 
     @Override
@@ -161,14 +135,13 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public void delete(UUID channelId) {
-        if (channelRepository.existsById(channelId)) {
+        if (!channelRepository.existsById(channelId)) {
             throw new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND, channelId);
         }
 
         channelRepository.deleteById(channelId);
     }
 
-    @Override
     public boolean isUserInvolved(UUID channelId, UUID userId) {
         // 채널과 유저 객체를 찾는다.
 //        Channel channel = channelRepository.findById(channelId)
@@ -182,18 +155,5 @@ public class BasicChannelService implements ChannelService {
 //
 //        return channel.getUserList().contains(user);
         return false;
-    }
-
-    @Override
-    public Instant findLastMessageTime(UUID channelId) {
-        Channel channel = channelRepository.findById(channelId)
-            .orElseThrow(() ->
-                new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND)
-            );
-
-        return channel.getMessageList().stream()
-            .map(Message::getCreatedAt)
-            .max(Instant::compareTo)
-            .orElse(null);
     }
 }

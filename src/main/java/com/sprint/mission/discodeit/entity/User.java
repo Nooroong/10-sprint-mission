@@ -45,8 +45,7 @@ public class User extends BaseUpdatableEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<ReadStatus> readStatusList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.SET_NULL) // ON DELETE SET NULL
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private List<Message> messageList = new ArrayList<>(); // 특정 유저가 생성한 모든 메시지
 
 

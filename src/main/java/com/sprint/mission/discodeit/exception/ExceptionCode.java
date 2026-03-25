@@ -5,8 +5,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ExceptionCode {
-    // User with newEmail {newEmail} already exists
-    USER_INFO_DUPLICATED(HttpStatus.CONFLICT, "User with email %s already exists"),
+    USER_INFO_DUPLICATED(HttpStatus.CONFLICT, "User with email %s or username %s already exists"),
     USER_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "User with id %s not found"),
     USER_NAME_NOT_FOUND(HttpStatus.NOT_FOUND, "User with username %s not found"),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User with id %s not found"),
