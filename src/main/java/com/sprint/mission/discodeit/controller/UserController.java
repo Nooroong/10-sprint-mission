@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -41,6 +43,9 @@ public class UserController {
         @Valid @RequestPart("userCreateRequest") UserPostDto userPostDto,
         @Parameter(description = "User 프로필 이미지") @RequestPart(value = "profile", required = false) MultipartFile profile) {
 
+        log.info("[USER_CREATE] 유저 생성 요청: email={}, username={}", userPostDto.getEmail(),
+            userPostDto.getUsername());
+
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(userService.create(userPostDto, profile));
     }
@@ -49,6 +54,9 @@ public class UserController {
     @Operation(summary = "User 삭제", operationId = "delete")
     public ResponseEntity<?> deleteUser(
         @Parameter(name = "userId", description = "삭제할 User ID") @PathVariable UUID userId) {
+
+        log.info("[USER_DELETE] 유저 삭제 요청: id={}", userId);
+
         userService.delete(userId);
         return ResponseEntity.noContent().build();
     }
@@ -59,6 +67,10 @@ public class UserController {
         @Parameter(name = "userId", description = "수정할 User ID") @PathVariable UUID userId,
         @Valid @RequestPart("userUpdateRequest") UserPatchDto userPatchDto,
         @Parameter(name = "profile", description = "수정할 User 프로필 이미지") @RequestPart(required = false) MultipartFile profile) {
+
+        log.info("[USER_UPDATE] 유저 수정 요청: newEmail={}, newUsername={}", userPatchDto.newEmail(),
+            userPatchDto.newUsername());
+
         return ResponseEntity.status(HttpStatus.OK)
             .body(userService.updateUser(userId, userPatchDto, profile));
     }

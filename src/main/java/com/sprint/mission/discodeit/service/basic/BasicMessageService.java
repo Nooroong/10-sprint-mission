@@ -24,12 +24,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -47,6 +49,9 @@ public class BasicMessageService implements MessageService {
     @Override
     public MessageDto create(MessagePostDto messagePostDto, List<MultipartFile> attachments)
         throws RuntimeException {
+        log.trace("[MESSAGE] create 메서드 호출: authorId = {}, channelId = {}",
+            messagePostDto.authorId(), messagePostDto.channelId());
+
         // 메시지를 생성 전, 유저가 해당 채널에 속해있는지 확인한다.
         Channel channel = channelRepository.findById(messagePostDto.channelId())
             .orElseThrow(

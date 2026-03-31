@@ -39,6 +39,9 @@ public class BasicUserService implements UserService {
 
     @Override
     public UserDto create(UserPostDto userPostDto, MultipartFile profile) {
+        log.trace("[USER] create 메서드 호출: email={}, username={}", userPostDto.getEmail(),
+            userPostDto.getUsername());
+
         // username과 email이 다른 유저와 같으면 안 된다.
         if (isUserNameDuplicated(userPostDto.getUsername()) ||
             isEmailDuplicated(userPostDto.getEmail())) {
@@ -51,6 +54,8 @@ public class BasicUserService implements UserService {
 
         // 프로필 정보를 선택적으로 저장
         if (profile != null && !profile.isEmpty()) {
+            log.trace("[USER] 프로필 저장 시작: fileName = {}", profile.getOriginalFilename());
+
             try {
                 BinaryContent binaryContent = new BinaryContent(
                     profile.getOriginalFilename(),
@@ -62,9 +67,13 @@ public class BasicUserService implements UserService {
                 binaryContentStorage.put(binaryContent.getId(), profile.getBytes());
 
                 newUser.updateProfile(binaryContent); // user에 프로필 정보 업데이트
+
+                log.trace(
+                    "[USER] 프로필 파일 저장 및 binaryContent 영속화 완료: fileName = {}, binaryContentId = {}",
+                    profile.getOriginalFilename(), binaryContent.getId());
+
             } catch (IOException e) {
-                e.printStackTrace();
-                throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION);
+                throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION, e);
             }
         }
 
@@ -74,6 +83,8 @@ public class BasicUserService implements UserService {
 
         userRepository.save(newUser);
         userStatusRepository.save(newUserStatus);
+
+        log.info("[USER] 유저 생성 완료: id = {}", newUser.getId());
 
         return userMapper.toDto(newUser);
     }
@@ -98,6 +109,8 @@ public class BasicUserService implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserDto findByUsername(String username) {
+        log.trace("[USER] findByUsername 메서드 호출: username={}", username);
+
         User user = userRepository.findByUsername(username)
             .orElseThrow(
                 () -> new BusinessLogicException(ExceptionCode.USER_NAME_NOT_FOUND, username)
@@ -109,6 +122,8 @@ public class BasicUserService implements UserService {
     @Override
     @Transactional(readOnly = true)
     public List<UserDto> findAll() {
+        log.trace("[USER] findAll 메서드 호출");
+
         // UserStatus의 isLoggedIn을 활용하여 온라인 상태 반환
         return userRepository.findAll().stream()
             .map(userMapper::toDto)
@@ -116,8 +131,10 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public UserDto updateUser(UUID userId, UserPatchDto userPatchDto,
-        MultipartFile profile) {
+    public UserDto updateUser(UUID userId, UserPatchDto userPatchDto, MultipartFile profile) {
+        log.debug("[USER] update 메서드 호출: newEmail={}, newUsername={}", userPatchDto.newEmail(),
+            userPatchDto.newUsername());
+
         User updatedUser = userRepository.findById(userId)
             .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND, userId));
 
@@ -129,6 +146,9 @@ public class BasicUserService implements UserService {
         Optional.ofNullable(userPatchDto.newPassword())
             .ifPresent(updatedUser::updatePassword);
         if (profile != null && !profile.isEmpty()) {
+
+            log.trace("[USER] 프로필 저장 시작: fileName = {}", profile.getOriginalFilename());
+
             try {
                 BinaryContent binaryContent = new BinaryContent(
                     profile.getOriginalFilename(),
@@ -140,20 +160,31 @@ public class BasicUserService implements UserService {
                 binaryContentStorage.put(binaryContent.getId(), profile.getBytes());
 
                 updatedUser.updateProfile(binaryContent); // user에 프로필 정보 업데이트
+
+                log.trace(
+                    "[USER] 프로필 파일 저장 및 binaryContent 영속화 완료: fileName = {}, binaryContentId = {}",
+                    profile.getOriginalFilename(), binaryContent.getId());
+
             } catch (IOException e) {
-                throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION);
+                throw new BusinessLogicException(ExceptionCode.ATTACHMENT_SAVE_EXCEPTION, e);
             }
         }
+
+        log.info("[USER] 유저 수정 완료: id = {}", updatedUser.getId());
 
         return userMapper.toDto(userRepository.save(updatedUser));
     }
 
     @Override
     public void delete(UUID userId) {
+        log.trace("[USER] delete 메서드 호출: id = {}", userId);
+
         if (!userRepository.existsById(userId)) {
             throw new BusinessLogicException(ExceptionCode.USER_NOT_FOUND, userId);
         }
-        
+
         userRepository.deleteById(userId);
+
+        log.info("[USER] 유저 삭제 완료: id = {}", userId);
     }
 }

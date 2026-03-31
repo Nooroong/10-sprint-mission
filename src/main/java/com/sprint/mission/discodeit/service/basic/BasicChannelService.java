@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -36,13 +38,22 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public ChannelDto createPublicChannel(PublicChannelPostDto publicChannelPostDto) {
-        return channelMapper.toDto(
-            channelRepository.save(channelMapper.toEntity(publicChannelPostDto))
-        );
+        log.trace("[CHANNEL] createPublicChannel 메서드 호출: name = {}, description = {}",
+            publicChannelPostDto.name(), publicChannelPostDto.description());
+
+        Channel newPublicChannel = channelRepository.save(
+            channelMapper.toEntity(publicChannelPostDto));
+
+        log.info("[CHANNEL] public 채널 생성 완료: id = {}", newPublicChannel.getId());
+
+        return channelMapper.toDto(newPublicChannel);
     }
 
     @Override
     public ChannelDto createPrivateChannel(PrivateChannelPostDto privateChannelPostDto) {
+        log.trace("[CHANNEL] createPrivateChannel 메서드 호출: participantIds = {}",
+            privateChannelPostDto.participantIds());
+
         List<User> users = privateChannelPostDto.participantIds().stream()
             .map(userRepository::findById)
             .flatMap(Optional::stream)
@@ -51,16 +62,22 @@ public class BasicChannelService implements ChannelService {
         Channel channel = channelMapper.toEntity(privateChannelPostDto);
 
         for (User user : users) {
+            log.trace("[CHANNEL] 새로운 private 채널에 유저 추가 중: userId = {}", user.getId());
             channel.addUser(user);
         }
 
         channelRepository.save(channel);
+
+        log.info("[CHANNEL] private 채널 생성 완료: id = {}", channel.getId());
+
         return channelMapper.toDto(channel);
     }
 
     @Override
     @Transactional(readOnly = true)
     public ChannelDto findById(UUID channelId) {
+        log.trace("[CHANNEL] findById 메서드 호출: id = {}", channelId);
+
         Channel channel = channelRepository.findById(channelId).orElseThrow(
             () -> new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND)
         );
@@ -72,6 +89,8 @@ public class BasicChannelService implements ChannelService {
     @Override
     @Transactional(readOnly = true)
     public List<ChannelDto> findAllByUserId(UUID userId) {
+        log.trace("[CHANNEL] findAllByUserId 메서드 호출: userId = {}", userId);
+
         return channelRepository.findByUserId(userId).stream()
             .map(channelMapper::toDto)
             .toList();
@@ -79,6 +98,9 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public ChannelDto update(UUID channelId, ChannelPatchDto channelPatchDto) {
+        log.trace("[CHANNEL] update 메서드 호출: id = {}, newName = {}, newDescription = {}", channelId,
+            channelPatchDto.newName(), channelPatchDto.newDescription());
+
         Channel updateChannel = channelRepository.findById(channelId)
             .orElseThrow(
                 () -> new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND)
@@ -95,11 +117,16 @@ public class BasicChannelService implements ChannelService {
         Optional.ofNullable(channelPatchDto.newDescription())
             .ifPresent(updateChannel::updateDescription);
 
+        log.info("[CHANNEL] 채널 수정 완료: id = {}, newName = {}, newDescription = {}", channelId,
+            channelPatchDto.newName(), channelPatchDto.newDescription());
+
         return channelMapper.toDto(updateChannel);
     }
 
     @Override
     public ChannelDto addUser(UUID channelId, UUID userId) {
+        log.trace("[CHANNEL] addUser 메서드 호출: channelId = {}, userId = {}", channelId, userId);
+
         Channel channel = channelRepository.findById(channelId)
             .orElseThrow(
                 () -> new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND)
@@ -116,11 +143,14 @@ public class BasicChannelService implements ChannelService {
         channelRepository.save(channel);
         userRepository.save(user);
 
+        log.info("[CHANNEL] 유저 추가 완료: channelId = {}, userId = {}", channelId, userId);
+
         return channelMapper.toDto(channel);
     }
 
     @Override
     public boolean deleteUser(UUID channelId, UUID userId) {
+        log.trace("[CHANNEL] deleteUser 메서드 호출: channelId = {}, userId = {}", channelId, userId);
 //        Channel channel = channelRepository.findById(channelId)
 //            .orElseThrow(
 //                () -> new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND)
@@ -135,25 +165,14 @@ public class BasicChannelService implements ChannelService {
 
     @Override
     public void delete(UUID channelId) {
+        log.trace("[CHANNEL] delete 메서드 호출: id = {}", channelId);
+
         if (!channelRepository.existsById(channelId)) {
             throw new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND, channelId);
         }
 
-        channelRepository.deleteById(channelId);
-    }
+        log.info("[CHANNEL] 채널 삭제 완료: id = {}", channelId);
 
-    public boolean isUserInvolved(UUID channelId, UUID userId) {
-        // 채널과 유저 객체를 찾는다.
-//        Channel channel = channelRepository.findById(channelId)
-//            .orElseThrow(
-//                () -> new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND)
-//            );
-//        User user = userRepository.findById(userId)
-//            .orElseThrow(
-//                () -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND)
-//            );
-//
-//        return channel.getUserList().contains(user);
-        return false;
+        channelRepository.deleteById(channelId);
     }
 }

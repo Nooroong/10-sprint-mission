@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/binaryContents")
 @RequiredArgsConstructor
@@ -54,6 +56,9 @@ public class BinaryContentController {
         @Parameter(name = "binaryContentId", description = "다운로드할 파일 ID") @PathVariable("binaryContentId") UUID binaryContentId)
         throws
         IOException {
+
+        log.info("[BINARY_CONTENT_DOWNLOAD] 파일 다운로드 요청, id={}", binaryContentId);
+
         return binaryContentStorage.download(
             binaryContentService.findById(binaryContentId)
         );
