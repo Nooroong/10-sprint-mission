@@ -1,0 +1,32 @@
+#aVersion: '3.9' # 이거 머임?
+services:
+  app:
+    build: .                 # 동일 폴더의 Dockerfile로 이미지 빌드
+    ports:
+      - '8081:80'
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    env_file: [ .env ]
+
+    depends_on:
+      - db #db를 먼저 컨테이너화 하고 app을 나중에 컨테이너화 한다.
+
+    volumes:
+      - app-uploads:/app/.discodeit/storage
+
+  db:
+    image: postgres:15
+    ports:
+      - '5432:5432' # todo: 보안을 위해 외부 포트 변경 필요
+    environment:
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      POSTGRES_DB: discodeit # todo: 환경변수 사용하도록 변경
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql # schema.sql 자동실행
+
+
+volumes:
+  app-uploads: { }
+  db-data: { }
