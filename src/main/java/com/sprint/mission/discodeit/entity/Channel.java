@@ -1,39 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-public class Channel extends BaseEntity{
-    private String channelName;
-    private List<User> participants = new ArrayList<>();
-    private List<Message> channelMessages = new ArrayList<>();
+@Entity
+@Table(name = "channels")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Channel extends BaseUpdatableEntity {
 
-    public String getChannelName() {
-        return channelName;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ChannelType type;
+  @Column(length = 100)
+  private String name;
+  @Column(length = 500)
+  private String description;
+
+  public Channel(ChannelType type, String name, String description) {
+    this.type = type;
+    this.name = name;
+    this.description = description;
+  }
+
+  public void update(String newName, String newDescription) {
+    if (newName != null && !newName.equals(this.name)) {
+      this.name = newName;
     }
-
-    public void updateChannelInfo(String newChannelName){
-        this.channelName = newChannelName;
-        super.setUpdatedAt(System.currentTimeMillis());
+    if (newDescription != null && !newDescription.equals(this.description)) {
+      this.description = newDescription;
     }
-
-    public List<User> getParticipants() {
-        return participants;
-    }
-
-    public void addParticipant(User user){
-       this.participants.add(user);
-    }
-
-    public List<Message> getChannelMessages() {
-        return channelMessages;
-    }
-
-    public void addMessage(Message message){
-        this.channelMessages.add(message);
-    }
-
-    public Channel(String channelName) {
-        this.channelName = channelName;
-    }
+  }
 }
